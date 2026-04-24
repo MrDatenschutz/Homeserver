@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Homeserver</title>
+  <style>
+    body {
+      background: #111;
+      color: #fff;
+      font-family: Arial;
+      padding: 20px;
+    }
+    input {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Willkommen, admin</h1>
+<p>Hier kannst du Dateien hochladen und herunterladen.</p>
+
+<h3>Datei hochladen</h3>
+<input type="file" id="fileInput">
+<button onclick="upload()">Upload</button>
+
+<h3>Downloads</h3>
+<div id="fileList"></div>
+
+<script>
+// User muss GitHub Token eingeben (wird NICHT gespeichert)
+let token = prompt("Bitte GitHub Token eingeben (wird nicht gespeichert):");
+
+async function upload() {
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) return alert("Keine Datei ausgewählt");
+
+  const content = await file.text();
+  const base64 = btoa(content);
+
+  await fetch(`https://api.github.com/repos/MrDatenschutz/Homeserver/contents/${file.name}`, {
+    method: "PUT",
+    headers: {
+      "Authorization": "token " + token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message: "Upload " + file.name,
+      content: base64
+    })
+  });
+
+  alert("Upload erfolgreich");
+  loadFiles();
+}
+
+async function loadFiles() {
+  const res = await fetch("https://api.github.com/repos/MrDatenschutz/Homeserver/contents/");
+  const files = await res.json();
+
+  let html = "";
+  files.forEach(f => {
+    if (f.type === "file") {
+      html += `<a href="${f.download_url}" style="color:#4CAF50">${f.name}</a><br>`;
+    }
+  });
+
+  document.getElementById("fileList").innerHTML = html;
+}
+
+loadFiles();
+</script>
+
+</body>
+</html>

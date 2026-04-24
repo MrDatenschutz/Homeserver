@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .box {
+      background: #222;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Login</h2>
+  <input id="user" placeholder="Benutzername">
+  <input id="pw" type="password" placeholder="Passwort">
+  <button onclick="login()">Login</button>
+</div>
+
+<script>
+const VALID_USER = "admin";
+const VALID_HASH = "f4f1e1b0dff78eaef918a1962fa2a343b3bf3f1e9465d9bfb87d0ed6f246d106";
+
+async function sha256(str) {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function login() {
+  const user = document.getElementById("user").value;
+  const pw = document.getElementById("pw").value;
+
+  if (user !== VALID_USER) {
+    alert("Falscher Benutzername");
+    return;
+  }
+
+  const hash = await sha256(pw);
+
+  if (hash === VALID_HASH) {
+    window.location.href = "protected.html";
+  } else {
+    alert("Falsches Passwort");
+  }
+}
+</script>
+
+</body>
+</html>
